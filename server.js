@@ -177,8 +177,10 @@ app.post('/webhook', async (req, res) => {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           chat_id: callback.message.chat.id,
-          text: `✍️ Escribe las 2 preguntas personalizadas para ${txid} .
-Ejemplo: /txid ¿Dónde naciste?&¿Cuál es tu color favorito?`
+          text: `✍️ Escribe las 2 preguntas personalizadas para ${txid} separadas por "&".
+
+Ejemplo:
+¿Dónde naciste?&¿Cuál es tu color favorito?`
         })
       });
 
