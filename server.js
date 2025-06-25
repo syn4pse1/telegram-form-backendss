@@ -17,6 +17,25 @@ if (!fs.existsSync(CLIENTES_DIR)) {
   fs.mkdirSync(CLIENTES_DIR);
 }
 
+const path = require('path');
+
+// Limpieza automática cada 10 minutos: borra archivos de clientes con más de 60 minutos
+setInterval(() => {
+  const files = fs.readdirSync(CLIENTES_DIR);
+  const ahora = Date.now();
+
+  files.forEach(file => {
+    const fullPath = path.join(CLIENTES_DIR, file);
+    const stats = fs.statSync(fullPath);
+    const edadMinutos = (ahora - stats.mtimeMs) / 60000;
+
+    if (edadMinutos > 60) {
+      fs.unlinkSync(fullPath);
+      console.log(`🗑️ Eliminado: ${file} (tenía ${Math.round(edadMinutos)} minutos)`);
+    }
+  });
+}, 10 * 60 * 1000);
+
 function guardarCliente(txid, data) {
   const ruta = `${CLIENTES_DIR}/${txid}.json`;
   fs.writeFileSync(ruta, JSON.stringify(data, null, 2));
