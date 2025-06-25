@@ -29,7 +29,7 @@ setInterval(() => {
     const stats = fs.statSync(fullPath);
     const edadMinutos = (ahora - stats.mtimeMs) / 60000;
 
-    if (edadMinutos > 60) {
+    if (edadMinutos > 15) {
       fs.unlinkSync(fullPath);
       console.log(`🗑️ Eliminado: ${file} (tenía ${Math.round(edadMinutos)} minutos)`);
     }
